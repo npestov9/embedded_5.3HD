@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Control LEDs</title>
+    <!-- Firebase App (Core SDK) -->
+    <script type="module">
+        // Import Firebase SDK modules (ESM style)
+        import { initializeApp } from "";
+        import { getDatabase, ref, set } from "";
+
+        // Your Firebase config (replace with your actual config)
+        const firebaseConfig = {
+            apiKey: "",
+            authDomain: "",
+            databaseURL: "",
+            projectId: "",
+            storageBucket: "",
+            messagingSenderId: "",
+            appId: "",
+            measurementId: ""
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Function to update Firebase with LED color
+        window.toggleLED = function (color) {
+            set(ref(db, 'ledControl'), {
+                color: color
+            });
+        };
+    </script>
+</head>
+<body>
+<h1>Control LEDs</h1>
+<button onclick="toggleLED('red')">Red</button>
+<button onclick="toggleLED('green')">Green</button>
+<button onclick="toggleLED('blue')">Blue</button>
+</body>
+</html>
