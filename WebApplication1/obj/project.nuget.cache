@@ -1,8 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "dj+nlUw/3Zk=",
+  "dgSpecHash": "G71ywzQoF5M=",
   "success": true,
   "projectFilePath": "/Users/nikitapestov/Documents/Deakin/Embedded/5.3HD/WebApplication1/WebApplication1/WebApplication1.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/Users/nikitapestov/.nuget/packages/microsoft.netcore.app.ref/8.0.15/microsoft.netcore.app.ref.8.0.15.nupkg.sha512",
+    "/Users/nikitapestov/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.15/microsoft.aspnetcore.app.ref.8.0.15.nupkg.sha512",
+    "/Users/nikitapestov/.nuget/packages/microsoft.netcore.app.host.osx-arm64/8.0.15/microsoft.netcore.app.host.osx-arm64.8.0.15.nupkg.sha512"
+  ],
   "logs": []
 }

@@ -1,71 +1,69 @@
 #include <WiFiNINA.h>
-#include <Firebase_Arduino_WiFiNINA.h>  // correct library for Nano 33 IoT
+#include <ArduinoHttpClient.h>
 
-// Firebase credentials
-#define FIREBASE_HOST ""
-#define FIREBASE_AUTH ""
-
-// WiFi credentials
+// WiFi credentials (left blank for submission)
 const char* ssid = "";
 const char* password = "";
+
+// Firebase host (without https:// and no trailing slash)
+const char* FIREBASE_HOST = "";
+
+// HTTP client setup
+WiFiClient wifi;
+HttpClient client = HttpClient(wifi, FIREBASE_HOST, 443); // Firebase uses HTTPS
 
 // LED pins
 const int RED_LED = 2;
 const int GREEN_LED = 5;
 const int BLUE_LED = 8;
 
-FirebaseData fbdo; // for handling Firebase requests
-
 void setup() {
   Serial.begin(9600);
 
-  // Connect to WiFi (for logs)
+  pinMode(RED_LED, OUTPUT);
+  pinMode(GREEN_LED, OUTPUT);
+  pinMode(BLUE_LED, OUTPUT);
+
   Serial.print("Connecting to WiFi");
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("\nConnected to WiFi!");
-
-  // Initialize Firebase
-  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH, ssid, password);
-  Firebase.reconnectWiFi(true);
-
-  // LED pin setup
-  pinMode(RED_LED, OUTPUT);
-  pinMode(GREEN_LED, OUTPUT);
-  pinMode(BLUE_LED, OUTPUT);
-
-  Serial.println("Setup complete, waiting for commands...");
+  Serial.println("\nWiFi connected!");
+  Serial.println("Setup complete.");
 }
 
-
 void loop() {
-  String ledColor = "";
+  // Firebase REST path to value (no auth param because rules are public)
+  String path = "/ledControl/color.json";
 
-  // Get the color string from Firebase
-  if (Firebase.getString(fbdo, "/ledControl/color")) {
-    ledColor = fbdo.stringData();
-    Serial.print("Color received: ");
-    Serial.println(ledColor);
-  } else {
-    Serial.print("Firebase get failed: ");
-    Serial.println(fbdo.errorReason());
-  }
+  // 🔹 This is the actual HTTP GET request to Firebase
+  client.get(path);
 
-  // Control LEDs based on Firebase value
-  if (ledColor == "red") {
+  int statusCode = client.responseStatusCode();
+  String response = client.responseBody();
+
+  Serial.print("Status: ");
+  Serial.println(statusCode);
+  Serial.print("Response: ");
+  Serial.println(response);
+
+  // Clean and use the response
+  response.trim();
+  response.replace("\"", "");  // remove quotes from JSON string
+
+  if (response == "red") {
     digitalWrite(RED_LED, HIGH);
     digitalWrite(GREEN_LED, LOW);
     digitalWrite(BLUE_LED, LOW);
     Serial.println("Red LED ON");
-  } else if (ledColor == "green") {
+  } else if (response == "green") {
     digitalWrite(RED_LED, LOW);
     digitalWrite(GREEN_LED, HIGH);
     digitalWrite(BLUE_LED, LOW);
     Serial.println("Green LED ON");
-  } else if (ledColor == "blue") {
+  } else if (response == "blue") {
     digitalWrite(RED_LED, LOW);
     digitalWrite(GREEN_LED, LOW);
     digitalWrite(BLUE_LED, HIGH);
@@ -74,7 +72,7 @@ void loop() {
     digitalWrite(RED_LED, LOW);
     digitalWrite(GREEN_LED, LOW);
     digitalWrite(BLUE_LED, LOW);
-    Serial.println("No valid color, all LEDs OFF");
+    Serial.println("Invalid color. LEDs OFF");
   }
 
   delay(1000);
